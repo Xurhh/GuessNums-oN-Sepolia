@@ -260,7 +260,7 @@ function updateStatus(message, type = "info") {
             p.style.opacity = '0';
             setTimeout(() => statusDiv.removeChild(p), 300);
         }
-    }, 5 * 60 * 1000);
+    }, 60 * 60 * 1000);
     
     // 自动滚动到顶部
     statusDiv.scrollTop = 0;
