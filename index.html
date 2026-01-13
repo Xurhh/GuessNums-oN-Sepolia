@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>猜数字游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #4facfe, #00f2fe);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            margin: 10px 0;
+        }
+        button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #00c6fb;
+        }
+        #result {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .balances {
+            margin-top: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .grid div {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #f9f9f9;
+            font-size: 12px;
+        }
+        .guessed {
+            background: #4caf50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>猜数字游戏 (1-100)</h1>
+        <p>每次猜测支付0.001 ETH。猜对赢得奖池！</p>
+        <input type="number" id="guessInput" placeholder="输入1-100的数字" min="1" max="100">
+        <br>
+        <button id="guessBtn">猜测</button>
+        <p id="result"></p>
+        <div class="balances">
+            <p>奖池余额: <span id="prizePool">0</span> ETH</p>
+            <p>您的余额: <span id="userBalance">0</span> ETH</p>
+        </div>
+        <div class="grid" id="numberGrid"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
