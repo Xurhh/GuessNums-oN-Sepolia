@@ -159,17 +159,33 @@ const contractABI = [
 let provider, signer, contract;
 let guessedNumbers = new Set(); // 存储猜过的数字
 
+// 在init中加载
 async function init() {
     if (typeof window.ethereum !== 'undefined') {
         provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         signer = provider.getSigner();
         contract = new ethers.Contract(contractAddress, contractABI, signer);
+        loadGuessedNumbers(); // 加载持久化数据
         updateBalances();
         createGrid();
     } else {
         alert("请安装MetaMask！");
     }
+}
+
+// 加载函数
+function loadGuessedNumbers() {
+    const stored = localStorage.getItem('guessedNumbers');
+    if (stored) {
+        const numbers = JSON.parse(stored);
+        numbers.forEach(num => guessedNumbers.add(num));
+    }
+}
+
+// 保存函数
+function saveGuessedNumbers() {
+    localStorage.setItem('guessedNumbers', JSON.stringify([...guessedNumbers]));
 }
 
 async function updateBalances() {
@@ -192,32 +208,52 @@ function createGrid() {
     }
 }
 
+// 添加弹窗函数
+function showModal(message) {
+    document.getElementById("modalMessage").textContent = message;
+    document.getElementById("customModal").style.display = "block";
+}
+
+// 关闭弹窗
+document.querySelector(".close").onclick = function() {
+    document.getElementById("customModal").style.display = "none";
+}
+
+// 点击弹窗外关闭
+window.onclick = function(event) {
+    if (event.target == document.getElementById("customModal")) {
+        document.getElementById("customModal").style.display = "none";
+    }
+}
+
+// 修改所有提示为弹窗
 document.getElementById("guessBtn").addEventListener("click", async () => {
     const guess = parseInt(document.getElementById("guessInput").value);
     if (!guess || guess < 1 || guess > 100) {
-        alert("请输入1-100的数字！");
+        showModal("请输入1-100的数字！");
         return;
     }
     if (guessedNumbers.has(guess)) {
-        alert("你已经猜过这个数字了！");
+        showModal("你已经猜过这个数字了！");
         return;
     }
     try {
-        document.getElementById("result").textContent = "正在付款...";
+        showModal("正在付款...");
         const tx = await contract.guess(guess, { value: ethers.utils.parseEther("0.001") });
-        document.getElementById("result").textContent = "付款成功，等待确认...";
+        showModal("付款成功，等待确认...");
         await tx.wait();
         guessedNumbers.add(guess);
+        saveGuessedNumbers();
         createGrid();
         updateBalances();
         // 监听事件
         contract.on("GuessResult", (player, guessNum, correct, prize) => {
             if (player.toLowerCase() === signer.getAddress().toLowerCase()) {
-                document.getElementById("result").textContent = correct ? `猜对了！赢得 ${ethers.utils.formatEther(prize)} ETH` : "猜错了，再试试！";
+                showModal(correct ? `猜对了！赢得 ${ethers.utils.formatEther(prize)} ETH` : "猜错了，再试试！");
             }
         });
     } catch (error) {
-        document.getElementById("result").textContent = "错误：" + error.message;
+        showModal("错误：" + error.message);
     }
 });
 
