@@ -338,4 +338,6 @@ document.getElementById("guessInput").addEventListener("keypress", (e) => {
     }
 });
 
+
+// 初始化应用
 init();
