@@ -226,21 +226,43 @@ window.onclick = function(event) {
     }
 }
 
-// 修改所有提示为弹窗
+// 添加状态区域更新函数
+function updateStatus(message) {
+    const statusDiv = document.getElementById("statusMessages");
+    const p = document.createElement("p");
+    p.textContent = new Date().toLocaleTimeString() + ": " + message;
+    statusDiv.appendChild(p);
+    // 5分钟后移除
+    setTimeout(() => {
+        if (statusDiv.contains(p)) {
+            statusDiv.removeChild(p);
+        }
+    }, 60 * 60 * 1000);
+}
+
+// 修改所有提示为弹窗 + 状态区域
 document.getElementById("guessBtn").addEventListener("click", async () => {
     const guess = parseInt(document.getElementById("guessInput").value);
     if (!guess || guess < 1 || guess > 100) {
-        showModal("请输入1-100的数字！");
+        const msg = "请输入1-100的数字！";
+        showModal(msg);
+        updateStatus(msg);
         return;
     }
     if (guessedNumbers.has(guess)) {
-        showModal("你已经猜过这个数字了！");
+        const msg = "你已经猜过这个数字了！";
+        showModal(msg);
+        updateStatus(msg);
         return;
     }
     try {
-        showModal("正在付款...");
+        const payingMsg = "正在付款...";
+        showModal(payingMsg);
+        updateStatus(payingMsg);
         const tx = await contract.guess(guess, { value: ethers.utils.parseEther("0.001") });
-        showModal("付款成功，等待确认...");
+        const confirmMsg = "付款成功，等待确认...";
+        showModal(confirmMsg);
+        updateStatus(confirmMsg);
         await tx.wait();
         guessedNumbers.add(guess);
         saveGuessedNumbers();
@@ -249,11 +271,15 @@ document.getElementById("guessBtn").addEventListener("click", async () => {
         // 监听事件
         contract.on("GuessResult", (player, guessNum, correct, prize) => {
             if (player.toLowerCase() === signer.getAddress().toLowerCase()) {
-                showModal(correct ? `猜对了！赢得 ${ethers.utils.formatEther(prize)} ETH` : "猜错了，再试试！");
+                const resultMsg = correct ? `猜对了！赢得 ${ethers.utils.formatEther(prize)} ETH` : "猜错了，再试试！";
+                showModal(resultMsg);
+                updateStatus(resultMsg);
             }
         });
     } catch (error) {
-        showModal("错误：" + error.message);
+        const errorMsg = "错误：" + error.message;
+        showModal(errorMsg);
+        updateStatus(errorMsg);
     }
 });
 
