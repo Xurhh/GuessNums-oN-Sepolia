@@ -212,6 +212,7 @@ async function updateBalances() {
     document.getElementById("userBalance").textContent = parseFloat(ethers.utils.formatEther(userBalance)).toFixed(4);
 }
 
+// 创建数字网格
 function createGrid() {
     const grid = document.getElementById("numberGrid");
     grid.innerHTML = "";
