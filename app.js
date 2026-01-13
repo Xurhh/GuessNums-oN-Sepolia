@@ -292,26 +292,20 @@ document.getElementById("guessBtn").addEventListener("click", async () => {
         
         const receipt = await tx.wait();
         
-        // 从回执中立即解析事件
-        const event = receipt.events?.find(e => e.event === 'GuessResult');
-        if (event) {
-            const { correct, prize } = event.args;
-            if (correct) {
-                const resultMsg = `🎉 恭喜！猜对了数字 ${guess}，赢得 ${ethers.utils.formatEther(prize)} ETH！`;
-                updateStatus(resultMsg, "success");
-                showModal(resultMsg);
-                // 猜对后清空已猜数字
-                guessedNumbers.clear();
-                localStorage.removeItem('guessedNumbers');
-            } else {
-                updateStatus(`❌ 猜错了，${guess} 不是正确答案`, "error");
-            }
-        }
-        
         updateStatus(`✅ 交易已确认 (Gas: ${receipt.gasUsed.toString()})`, "success");
         
-        guessedNumbers.add(guess);
-        saveGuessedNumbers();
+        // 如果猜对了，清空已猜数字；如果猜错了，添加到已猜列表
+        const event = receipt.events?.find(e => e.event === 'GuessResult');
+        if (event && event.args.correct) {
+            // 猜对后清空已猜数字
+            guessedNumbers.clear();
+            localStorage.removeItem('guessedNumbers');
+        } else {
+            // 猜错了，添加到已猜列表
+            guessedNumbers.add(guess);
+            saveGuessedNumbers();
+        }
+        
         createGrid();
         updateBalances();
         
